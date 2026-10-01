@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Orçamentos Numeros Proficuos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root { --blue: #1F6DB5; --navy: #13263A; --grey: #5B6672; --logo-blue: var(--blue); }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #fff; color: #000; font: 400 16px/1.5 Montserrat, system-ui, sans-serif; border-left: 14px solid var(--blue); min-height: 100vh; }
+  main { max-width: 720px; padding: 48px 24px; margin: 0 auto; }
+  .logo { width: 72px; } .logo svg { display: block; width: 100%; height: auto; }
+  h1 { font-size: 28px; font-weight: 800; margin: 20px 0 6px; }
+  p.lead { color: var(--grey); margin: 0 0 28px; max-width: 60ch; }
+  ul { list-style: none; padding: 0; margin: 0; border-top: 2.5px solid var(--navy); }
+  li { padding: 20px 0; border-bottom: 1px solid #DDE3E9; }
+  li h2 { margin: 0 0 4px; font-size: 19px; }
+  li h2 a { color: var(--blue); }
+  li p { margin: 0 0 8px; max-width: 62ch; }
+  li .links a { color: var(--navy); font-weight: 600; margin-right: 16px; font-size: 14px; }
+  a:focus-visible { outline: 3px solid var(--blue); outline-offset: 2px; }
+</style>
+</head>
+<body>
+<main>
+  <div class="logo" id="logo"></div>
+  <h1>Orçamentos: três propostas</h1>
+  <p class="lead">As três funcionam só no navegador, sem base de dados nem login. O rascunho fica guardado neste navegador até carregar em novo orçamento. Para obter o PDF, use “Guardar PDF” e escolha “Guardar como PDF”.</p>
+  <ul>
+    <li>
+      <h2><a href="opcao-a-cartao.html">A. Cartão</a></h2>
+      <p>A própria folha A4 é o editor: clica-se no texto e escreve-se. Usa a barra azul, os traços e a letra do cartão de visita. Ideal para computador.</p>
+      <div class="links"><a href="opcao-a-cartao.html">Abrir</a><a href="opcao-a-cartao.html#exemplo">Ver com exemplo</a></div>
+    </li>
+    <li>
+      <h2><a href="opcao-b-obra.html">B. Caderno de obra</a></h2>
+      <p>Formulário à esquerda e pré-visualização ao vivo à direita. O documento parece uma folha de projeto: trabalhos agrupados por capítulo (construção, eletricidade, canalizações, ar condicionado) com subtotais e um carimbo no fim.</p>
+      <div class="links"><a href="opcao-b-obra.html">Abrir</a><a href="opcao-b-obra.html#exemplo">Ver com exemplo</a></div>
+    </li>
+    <li>
+      <h2><a href="opcao-c-local.html">C. No local</a></h2>
+      <p>Pensado para o telemóvel, em casa do cliente: quatro passos (cliente, trabalhos, condições, guardar), botões grandes e o total sempre visível.</p>
+      <div class="links"><a href="opcao-c-local.html">Abrir</a><a href="opcao-c-local.html#exemplo">Ver com exemplo</a></div>
+    </li>
+  </ul>
+</main>
+<script src="assets/quote-core.js"></script>
+<script>document.getElementById('logo').innerHTML = QuoteCore.LOGO_SVG;</script>
+</body>
+</html>

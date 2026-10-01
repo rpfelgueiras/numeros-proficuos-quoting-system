@@ -1,0 +1,404 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Orçamentos: No local</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+  /* Option C — "No local": built for a phone on site. Four steps in order,
+     big touch targets, a running total always in view. The slanted cut from
+     the NP logo is the one recurring visual device. */
+  :root {
+    --blue: #1F6DB5;
+    --blue-dark: #165696;
+    --blue-wash: #EAF2FA;
+    --ink: #000;
+    --navy: #102A43;
+    --grey: #56616C;
+    --rule: #D5DCE3;
+    --page: #F5F7F9;
+    --error: #B3261E;
+    --logo-blue: var(--blue);
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--page); color: var(--ink); font: 400 17px/1.45 Barlow, system-ui, sans-serif; }
+  button, input, select, textarea { font: inherit; color: inherit; }
+  :focus-visible { outline: 3px solid var(--blue); outline-offset: 2px; }
+  .cond { font-family: "Barlow Condensed", Barlow, sans-serif; }
+
+  .wrap { max-width: 600px; margin: 0 auto; padding: 0 16px; }
+
+  /* Header + step indicator */
+  header.top { background: #fff; border-bottom: 1px solid var(--rule); padding-top: env(safe-area-inset-top); }
+  .brandrow { display: flex; align-items: center; gap: 12px; padding: 14px 0 10px; }
+  .brandrow .mark { width: 38px; color: var(--ink); }
+  .brandrow .mark svg { display: block; width: 100%; height: auto; }
+  .brandrow .t { font-size: 15px; line-height: 1.2; }
+  .brandrow .t b { display: block; font-family: "Barlow Condensed"; font-size: 21px; font-weight: 700; }
+  .brandrow .t span { color: var(--grey); }
+  .brandrow .reset { margin-left: auto; border: 0; background: none; color: var(--grey); font-size: 15px; text-decoration: underline; cursor: pointer; padding: 8px 0 8px 8px; }
+
+  ol.steps { list-style: none; display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin: 0; padding: 0 0 12px; }
+  ol.steps li button { width: 100%; border: 0; background: none; padding: 0; text-align: left; cursor: pointer; color: var(--grey); font-size: 14px; font-weight: 600; }
+  ol.steps .seg { display: block; height: 14px; background: var(--rule); clip-path: polygon(0 100%, 12px 0, 100% 0, calc(100% - 12px) 100%); margin-bottom: 6px; transition: background .25s; }
+  ol.steps li:first-child .seg { clip-path: polygon(0 0, 100% 0, calc(100% - 12px) 100%, 0 100%); }
+  ol.steps li:last-child .seg { clip-path: polygon(12px 0, 100% 0, 100% 100%, 0 100%); }
+  ol.steps li.done .seg { background: var(--navy); }
+  ol.steps li.current .seg { background: var(--blue); }
+  ol.steps li.current button { color: var(--ink); }
+
+  main.wrap { padding: 24px 16px 140px; }
+  .pane[hidden] { display: none; }
+  h1.q { font-family: "Barlow Condensed"; font-weight: 700; font-size: 34px; line-height: 1.05; margin: 0 0 18px; }
+
+  .f { display: block; margin-bottom: 14px; }
+  .f > span { display: block; font-size: 15px; font-weight: 600; margin-bottom: 5px; }
+  .f > span small { font-weight: 400; color: var(--grey); }
+  .in { width: 100%; min-height: 50px; padding: 11px 13px; border: 1.5px solid #B8C3CE; border-radius: 4px; background: #fff; }
+  .in:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px rgba(31,109,181,.22); }
+  textarea.in { min-height: 84px; resize: vertical; }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .err { color: var(--error); font-weight: 600; font-size: 15px; margin: -4px 0 14px; }
+  .in[aria-invalid=true] { border-color: var(--error); }
+
+  /* Line items */
+  .item { background: #fff; border-left: 5px solid var(--blue); padding: 14px 14px 12px; margin-bottom: 14px; }
+  .item-top { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .item-top .no { font-family: "Barlow Condensed"; font-weight: 700; font-size: 22px; color: var(--blue); }
+  .item-top select { flex: 1; min-height: 40px; border: 0; background: var(--blue-wash); border-radius: 4px; padding: 6px 10px; font-size: 15px; font-weight: 600; color: var(--blue-dark); }
+  .item-top .rm { border: 0; background: none; color: var(--grey); font-size: 15px; text-decoration: underline; cursor: pointer; min-height: 40px; padding: 0 4px; }
+  .item-top .rm:hover { color: var(--error); }
+  .item .nums { display: grid; grid-template-columns: 1fr 88px 1.3fr; gap: 10px; }
+  .item .nums .f { margin-bottom: 0; }
+  .item .lt { display: flex; justify-content: space-between; margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--rule); font-size: 15px; color: var(--grey); }
+  .item .lt b { color: var(--ink); font-variant-numeric: tabular-nums; }
+  .quick { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .quick button { min-height: 52px; border: 1.5px dashed var(--blue); background: #fff; color: var(--blue-dark); font-weight: 600; border-radius: 4px; cursor: pointer; text-align: left; padding: 8px 12px; font-size: 15px; }
+  .quick button:hover { background: var(--blue-wash); }
+  .quick-label { font-size: 15px; font-weight: 600; margin: 4px 0 8px; }
+
+  /* Segmented choices */
+  .seg-choice { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 16px; }
+  .seg-choice button { min-height: 48px; border: 1.5px solid #B8C3CE; background: #fff; border-radius: 4px; font-weight: 600; cursor: pointer; font-size: 15px; }
+  .seg-choice button[aria-pressed=true] { background: var(--navy); border-color: var(--navy); color: #fff; }
+  .group-label { font-size: 15px; font-weight: 600; margin: 0 0 5px; }
+  .valid-out { font-size: 15px; color: var(--grey); margin: -6px 0 18px; }
+  .valid-out b { color: var(--ink); }
+
+  /* Bottom bar */
+  .dock { position: fixed; left: 0; right: 0; bottom: 0; background: var(--navy); color: #fff; padding-bottom: env(safe-area-inset-bottom); z-index: 4; }
+  .dock .wrap { display: flex; align-items: center; gap: 10px; padding-top: 12px; padding-bottom: 12px; }
+  .dock .sum { margin-right: auto; line-height: 1.1; }
+  .dock .sum span { display: block; font-size: 13px; color: #A9BCCF; }
+  .dock .sum b { font-family: "Barlow Condensed"; font-size: 30px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .dock button { min-height: 52px; padding: 0 18px; border-radius: 4px; font-weight: 700; cursor: pointer; font-size: 17px; }
+  .dock .back { background: transparent; border: 1.5px solid #3E5A76; color: #fff; }
+  .dock .next { background: var(--blue); border: 0; color: #fff; min-width: 130px; }
+  .dock .next:hover { background: #2A7DCB; }
+
+  /* ---------- Quote document ---------- */
+  .preview-wrap { overflow: hidden; margin: 0 -16px; padding: 0 16px; }
+  .preview-scale { transform-origin: top left; }
+  .doc { width: 210mm; min-height: 297mm; background: #fff; box-shadow: 0 2px 6px rgba(16,42,67,.16), 0 16px 36px rgba(16,42,67,.12); display: flex; flex-direction: column; font-size: 12.5px; }
+  .doc-top { position: relative; display: flex; justify-content: space-between; align-items: flex-end; padding: 14mm 14mm 8mm; }
+  .doc-top::after { content: ""; position: absolute; right: 0; top: 0; width: 64mm; height: 42mm; background: var(--blue); clip-path: polygon(24% 0, 100% 0, 100% 100%, 0 100%); }
+  .doc-top .brand { display: flex; align-items: center; gap: 12px; }
+  .doc-top .logo { width: 22mm; color: var(--ink); }
+  .doc-top .logo svg { display: block; width: 100%; height: auto; }
+  .doc-top .brand b { display: block; font-family: "Barlow Condensed"; font-size: 24px; font-weight: 700; line-height: 1; }
+  .doc-top .brand span { color: var(--grey); font-size: 11px; line-height: 1.4; display: block; margin-top: 4px; }
+  .doc-top .num { position: relative; z-index: 1; text-align: right; color: #fff; align-self: flex-start; margin-top: 4mm; }
+  .doc-top .num b { display: block; font-family: "Barlow Condensed"; font-size: 30px; font-weight: 800; line-height: 1; }
+  .doc-top .num span { font-size: 12px; }
+  .doc-who { display: grid; grid-template-columns: 1.4fr 1fr; gap: 10mm; padding: 6mm 14mm; border-top: 2px solid var(--ink); border-bottom: 1px solid var(--rule); }
+  .doc-who .k { display: block; color: var(--grey); font-size: 11px; margin-bottom: 2px; }
+  .doc-who .name { font-family: "Barlow Condensed"; font-size: 22px; font-weight: 700; line-height: 1.1; }
+  .doc-who dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 3px 12px; }
+  .doc-who dt { color: var(--grey); }
+  .doc-who dd { margin: 0; font-weight: 600; }
+  .doc-lines { flex: 1; padding: 6mm 14mm; }
+  .doc-lines table { width: 100%; border-collapse: collapse; }
+  .doc-lines th { text-align: left; font-size: 11px; font-weight: 600; color: var(--grey); padding: 0 4px 6px; border-bottom: 1.5px solid var(--ink); }
+  .doc-lines td { padding: 7px 4px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+  .doc-lines .n { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .doc-lines .no { width: 22px; color: var(--blue); font-weight: 700; }
+  .doc-lines .cat { display: block; color: var(--blue-dark); font-size: 10.5px; font-weight: 600; }
+  .doc-lines .d { white-space: pre-wrap; }
+  .doc-lines tr { break-inside: avoid; }
+  .doc-notes { padding: 0 14mm 6mm; font-size: 11.5px; white-space: pre-wrap; color: var(--navy); }
+  .doc-notes b { display: block; color: var(--ink); }
+  .doc-end { display: grid; grid-template-columns: 1fr auto; break-inside: avoid; }
+  .doc-valid { padding: 6mm 14mm; align-self: end; }
+  .doc-valid .k { color: var(--grey); font-size: 11px; display: block; }
+  .doc-valid b { font-family: "Barlow Condensed"; font-size: 22px; font-weight: 700; }
+  .doc-sum { padding: 0 14mm 0 0; min-width: 78mm; font-variant-numeric: tabular-nums; }
+  .doc-sum .r { display: flex; justify-content: space-between; padding: 3px 0; color: var(--grey); }
+  .doc-sum .r b { color: var(--ink); font-weight: 600; }
+  .doc-total { position: relative; margin-top: 3mm; background: var(--navy); color: #fff; padding: 6mm 14mm 6mm 18mm; margin-right: -14mm; clip-path: polygon(10mm 0, 100% 0, 100% 100%, 0 100%); text-align: right; }
+  .doc-total span { display: block; font-size: 12px; color: #A9BCCF; }
+  .doc-total b { font-family: "Barlow Condensed"; font-size: 40px; font-weight: 800; line-height: 1; }
+  .doc-foot { padding: 6mm 14mm 10mm; font-size: 10.5px; color: var(--grey); border-top: 1px solid var(--rule); margin-top: 8mm; display: flex; justify-content: space-between; gap: 12px; }
+
+  .save-big { width: 100%; min-height: 58px; margin-top: 18px; background: var(--blue); color: #fff; border: 0; border-radius: 4px; font-size: 19px; font-weight: 700; cursor: pointer; }
+  .save-big:hover { background: #2A7DCB; }
+  .save-help { color: var(--grey); font-size: 15px; margin-top: 8px; }
+
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+
+  @media print {
+    @page { size: A4; margin: 0; }
+    body { background: #fff; }
+    header.top, .dock, .pane, .save-big, .save-help, h1.q { display: none !important; }
+    main.wrap, .wrap { padding: 0; margin: 0; max-width: none; }
+    #print-root { display: block !important; }
+    .preview-wrap { margin: 0; padding: 0; overflow: visible; }
+    .preview-scale { transform: none !important; height: auto !important; }
+    .doc { box-shadow: none; }
+  }
+</style>
+</head>
+<body>
+  <header class="top">
+    <div class="wrap">
+      <div class="brandrow">
+        <div class="mark" id="mark"></div>
+        <div class="t"><b>Orçamento</b><span id="num-label"></span></div>
+        <button class="reset" type="button" id="new">Começar outro</button>
+      </div>
+      <ol class="steps" id="steps">
+        <li><button type="button" data-go="0"><span class="seg"></span>1 Cliente</button></li>
+        <li><button type="button" data-go="1"><span class="seg"></span>2 Trabalhos</button></li>
+        <li><button type="button" data-go="2"><span class="seg"></span>3 Condições</button></li>
+        <li><button type="button" data-go="3"><span class="seg"></span>4 Guardar</button></li>
+      </ol>
+    </div>
+  </header>
+
+  <main class="wrap" id="main">
+    <form id="form" autocomplete="off" onsubmit="return false">
+      <section class="pane" data-step="0">
+        <h1 class="q">Para quem é o orçamento?</h1>
+        <label class="f"><span>Nome ou empresa</span><input class="in" id="cname" data-bind="customer.name" autocomplete="off"></label>
+        <p class="err" id="cname-err" hidden>Indique o nome do cliente para continuar.</p>
+        <div class="row2">
+          <label class="f"><span>Telefone <small>opcional</small></span><input class="in" data-bind="customer.phone" inputmode="tel"></label>
+          <label class="f"><span>NIF <small>opcional</small></span><input class="in" data-bind="customer.nif" inputmode="numeric"></label>
+        </div>
+        <label class="f"><span>Morada da obra</span><input class="in" data-bind="customer.address"></label>
+        <label class="f"><span>Código postal e localidade</span><input class="in" data-bind="customer.postal" placeholder="4815-000 Vizela"></label>
+        <label class="f"><span>Email <small>opcional</small></span><input class="in" data-bind="customer.email" type="email" inputmode="email"></label>
+      </section>
+
+      <section class="pane" data-step="1" hidden>
+        <h1 class="q">O que vai ser feito?</h1>
+        <div id="items"></div>
+        <p class="quick-label">Adicionar trabalho</p>
+        <div class="quick" id="quick"></div>
+      </section>
+
+      <section class="pane" data-step="2" hidden>
+        <h1 class="q">Até quando vale este preço?</h1>
+        <div class="seg-choice" id="days" role="group" aria-label="Validade"></div>
+        <label class="f"><span>Válido até</span><input class="in" type="date" data-bind="validUntil"></label>
+        <p class="valid-out" id="valid-out"></p>
+        <p class="group-label" id="vat-label">IVA</p>
+        <div class="seg-choice" id="vat" role="group" aria-labelledby="vat-label"></div>
+        <label class="f"><span>Observações <small>opcional</small></span><textarea class="in" data-bind="notes" placeholder="Prazo de execução, pagamento, o que não está incluído…"></textarea></label>
+        <div class="row2">
+          <label class="f"><span>N.º do orçamento</span><input class="in" data-bind="number"></label>
+          <label class="f"><span>Data</span><input class="in" type="date" data-bind="date"></label>
+        </div>
+      </section>
+    </form>
+
+    <section class="pane" data-step="3" hidden>
+      <h1 class="q">Confirme e guarde o PDF</h1>
+    </section>
+    <div id="print-root" hidden>
+      <div class="preview-wrap"><div class="preview-scale" id="scale"><article class="doc" id="doc"></article></div></div>
+      <button class="save-big" type="button" id="print">Guardar PDF</button>
+      <p class="save-help">No ecrã de impressão, escolha “Guardar como PDF” como destino.</p>
+    </div>
+  </main>
+
+  <nav class="dock" aria-label="Navegação">
+    <div class="wrap">
+      <div class="sum"><span>Total com IVA</span><b id="dock-total"></b></div>
+      <button class="back" type="button" id="back">Voltar</button>
+      <button class="next" type="button" id="next">Seguinte</button>
+    </div>
+  </nav>
+
+<script src="assets/quote-core.js"></script>
+<script>
+  const Q = window.QuoteCore;
+  let state = Q.load();
+  let step = 0;
+  const $ = (s) => document.querySelector(s);
+  const esc = Q.escapeHtml;
+  const get = (p) => p.split('.').reduce((o, k) => o[k], state);
+  const set = (p, v) => { const ks = p.split('.'); const last = ks.pop(); ks.reduce((o, k) => o[k], state)[last] = v; };
+
+  $('#mark').innerHTML = Q.LOGO_SVG;
+  $('#quick').innerHTML = Q.CATEGORIES.filter((c) => c !== 'Outros').concat('Outros').map((c) => `<button type="button" data-cat="${c}">+ ${c}</button>`).join('');
+  $('#days').innerHTML = [15, 30, 60, 90].map((d) => `<button type="button" data-days="${d}">${d} dias</button>`).join('');
+  $('#vat').innerHTML = Q.VAT_RATES.map((r) => `<button type="button" data-vat="${r.value}">${r.value ? r.value + '%' : 'Sem IVA'}</button>`).join('');
+
+  function fillForm() {
+    document.querySelectorAll('[data-bind]').forEach((el) => { el.value = get(el.dataset.bind); });
+    renderItems();
+    refresh();
+  }
+
+  function renderItems() {
+    $('#items').innerHTML = state.lines.map((l, i) => `
+      <div class="item" data-id="${l.id}">
+        <div class="item-top">
+          <span class="no">${i + 1}</span>
+          <select data-field="cat" aria-label="Tipo de trabalho">${Q.CATEGORIES.map((c) => `<option${c === l.cat ? ' selected' : ''}>${c}</option>`).join('')}</select>
+          <button type="button" class="rm" data-remove>Remover</button>
+        </div>
+        <label class="f"><span>Descrição</span><textarea class="in" data-field="desc" rows="2" placeholder="Ex.: Substituição do quadro elétrico">${esc(l.desc)}</textarea></label>
+        <div class="nums">
+          <label class="f"><span>Quantidade</span><input class="in" data-field="qty" inputmode="decimal" value="${esc(l.qty)}"></label>
+          <label class="f"><span>Unidade</span><select class="in" data-field="unit">${Q.UNITS.map((u) => `<option${u === l.unit ? ' selected' : ''}>${u}</option>`).join('')}</select></label>
+          <label class="f"><span>Preço un. (€)</span><input class="in" data-field="price" inputmode="decimal" placeholder="0,00" value="${esc(l.price)}"></label>
+        </div>
+        <div class="lt"><span>Total da linha</span><b data-out="lt"></b></div>
+      </div>`).join('');
+  }
+
+  function refresh() {
+    const t = Q.totals(state);
+    document.querySelectorAll('.item').forEach((el) => {
+      el.querySelector('[data-out=lt]').textContent = Q.eur(Q.lineTotal(state.lines.find((l) => l.id === el.dataset.id)));
+    });
+    $('#dock-total').textContent = Q.eur(t.total);
+    $('#dock-total').previousElementSibling.textContent = Number(state.vat) ? 'Total com IVA' : 'Total';
+    $('#num-label').textContent = `N.º ${state.number}`;
+    const days = Q.daysBetween(state.date, state.validUntil);
+    document.querySelectorAll('#days button').forEach((b) => b.setAttribute('aria-pressed', String(Number(b.dataset.days) === days)));
+    document.querySelectorAll('#vat button').forEach((b) => b.setAttribute('aria-pressed', String(Number(b.dataset.vat) === Number(state.vat))));
+    $('#valid-out').innerHTML = days >= 0
+      ? `O cliente tem <b>${days} dias</b> para aceitar, até <b>${Q.fmtDate(state.validUntil, 'long')}</b>.`
+      : `A validade é anterior à data do orçamento. Escolha uma data a partir de ${Q.fmtDate(state.date)}.`;
+    renderDoc(t);
+    Q.save(state);
+  }
+
+  function renderDoc(t) {
+    const C = Q.COMPANY, cu = state.customer;
+    const rows = state.lines.map((l, i) => `
+      <tr><td class="no">${i + 1}</td>
+        <td><span class="cat">${esc(l.cat)}</span><span class="d">${esc(l.desc) || '—'}</span></td>
+        <td class="n">${Q.fmtNum(Q.parseNum(l.qty))} ${esc(l.unit)}</td>
+        <td class="n">${Q.eur(Q.parseNum(l.price))}</td>
+        <td class="n">${Q.eur(Q.lineTotal(l))}</td></tr>`).join('');
+    const facts = [['NIF', cu.nif], ['Telefone', cu.phone], ['Email', cu.email]].filter(([, v]) => v.trim());
+    $('#doc').innerHTML = `
+      <div class="doc-top">
+        <div class="brand"><div class="logo">${Q.LOGO_SVG}</div><div><b>${C.name}</b><span>${C.street}<br>${C.city}</span></div></div>
+        <div class="num"><span>Orçamento</span><b>${esc(state.number)}</b><span>${Q.fmtDate(state.date)}</span></div>
+      </div>
+      <div class="doc-who">
+        <div><span class="k">Cliente</span><div class="name">${esc(cu.name) || '—'}</div>${[cu.address, cu.postal].filter((s) => s.trim()).map(esc).join('<br>')}</div>
+        <dl>${facts.map(([k, v]) => `<dt>${k}</dt><dd>${esc(v)}</dd>`).join('')}</dl>
+      </div>
+      <div class="doc-lines">
+        <table>
+          <thead><tr><th></th><th>Descrição</th><th class="n">Qtd.</th><th class="n">Preço un.</th><th class="n">Total</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+      ${state.notes.trim() ? `<div class="doc-notes"><b>Observações</b>${esc(state.notes)}</div>` : ''}
+      <div class="doc-end">
+        <div class="doc-valid"><span class="k">Válido até</span><b>${Q.fmtDate(state.validUntil, 'long')}</b></div>
+        <div class="doc-sum">
+          <div class="r"><span>Subtotal</span><b>${Q.eur(t.subtotal)}</b></div>
+          <div class="r"><span>${Q.vatLabel(state.vat)}</span><b>${Q.eur(t.vat)}</b></div>
+          <div class="doc-total"><span>Total</span><b>${Q.eur(t.total)}</b></div>
+        </div>
+      </div>
+      <div class="doc-foot"><span>${C.phone}</span><span>${C.email}</span><span>${C.web}</span></div>`;
+    fit();
+  }
+
+  function fit() {
+    const scale = $('#scale'), doc = $('#doc'), root = $('#print-root');
+    if (root.hidden) return;
+    const avail = root.clientWidth;
+    const k = Math.min(1, avail / doc.offsetWidth);
+    scale.style.transform = `scale(${k})`;
+    scale.style.height = `${doc.offsetHeight * k}px`;
+  }
+  window.addEventListener('resize', fit);
+
+  function go(n) {
+    if (n > 0 && !state.customer.name.trim()) {
+      n = 0;
+      $('#cname-err').hidden = false;
+      $('#cname').setAttribute('aria-invalid', 'true');
+      $('#cname').focus();
+    }
+    step = Math.max(0, Math.min(3, n));
+    document.querySelectorAll('.pane').forEach((p) => { p.hidden = Number(p.dataset.step) !== step; });
+    $('#print-root').hidden = step !== 3;
+    document.querySelectorAll('#steps li').forEach((li, i) => {
+      li.className = i < step ? 'done' : i === step ? 'current' : '';
+      li.querySelector('button').setAttribute('aria-current', i === step ? 'step' : 'false');
+    });
+    $('#back').style.visibility = step === 0 ? 'hidden' : 'visible';
+    $('#next').textContent = step === 3 ? 'Guardar PDF' : 'Seguinte';
+    window.scrollTo({ top: 0 });
+    fit();
+  }
+
+  const form = $('#form');
+  form.addEventListener('input', (e) => {
+    const el = e.target;
+    if (el.dataset.bind) {
+      set(el.dataset.bind, el.value);
+      if (el.id === 'cname' && el.value.trim()) { $('#cname-err').hidden = true; el.removeAttribute('aria-invalid'); }
+    } else if (el.dataset.field) {
+      state.lines.find((l) => l.id === el.closest('.item').dataset.id)[el.dataset.field] = el.value;
+    }
+    refresh();
+  });
+  form.addEventListener('click', (e) => {
+    const rm = e.target.closest('[data-remove]');
+    if (rm) {
+      const id = rm.closest('.item').dataset.id;
+      state.lines = state.lines.filter((l) => l.id !== id);
+      if (!state.lines.length) state.lines.push(Q.newLine());
+      renderItems(); refresh(); return;
+    }
+    const cat = e.target.closest('[data-cat]');
+    if (cat) {
+      const line = Q.newLine({ cat: cat.dataset.cat });
+      state.lines.push(line);
+      renderItems(); refresh();
+      document.querySelector(`.item[data-id="${line.id}"] textarea`).focus();
+      return;
+    }
+    const d = e.target.closest('[data-days]');
+    if (d) { state.validUntil = Q.addDays(state.date, Number(d.dataset.days)); document.querySelector('[data-bind=validUntil]').value = state.validUntil; refresh(); return; }
+    const v = e.target.closest('[data-vat]');
+    if (v) { state.vat = Number(v.dataset.vat); refresh(); }
+  });
+  $('#steps').addEventListener('click', (e) => { const b = e.target.closest('[data-go]'); if (b) go(Number(b.dataset.go)); });
+  $('#back').addEventListener('click', () => go(step - 1));
+  $('#next').addEventListener('click', () => (step === 3 ? Q.printQuote(state) : go(step + 1)));
+  $('#print').addEventListener('click', () => Q.printQuote(state));
+  $('#new').addEventListener('click', () => {
+    if (!confirm('Começar outro orçamento? Este será apagado deste telemóvel.')) return;
+    state = Q.blank(); fillForm(); go(0);
+  });
+
+  fillForm();
+  go(0);
+</script>
+</body>
+</html>

@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="40 35 635 535" role="img" aria-label="Numeros Proficuos">
+  <path fill="#000" d="M50 272 L122 238 L340 440 L340 560 L250 560 L125 345 L125 560 L50 560 Z"/>
+  <path fill="#000" d="M240 100 L340 45 L340 424 L240 332 Z"/>
+  <path fill="#1F6DB5" d="M356 152 L460 204 L460 560 L356 560 Z"/>
+  <path fill="#000" fill-rule="evenodd" d="M470 210 H548 A117.5 117.5 0 0 1 548 445 H470 Z M470 300 H542 A37.5 37.5 0 0 1 542 375 H470 Z"/>
+</svg>

@@ -1,0 +1,408 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Orçamentos: Caderno de obra</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&display=swap" rel="stylesheet">
+<style>
+  /* Option B — "Caderno de obra": form on the left, live sheet on the right.
+     The quote borrows the vocabulary of a construction drawing: a framed sheet,
+     work grouped into chapters with article numbers, and a title block. */
+  :root {
+    --blue: #1F6DB5;
+    --blue-ink: #155089;
+    --navy: #0E2338;
+    --navy-2: #17324D;
+    --line: #2A4866;
+    --mist: #9FB3C8;
+    --ink: #000;
+    --grey: #5E6A76;
+    --hair: #C9D1D9;
+    --bench: #E9EDF1;
+    --logo-blue: var(--blue);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bench); color: var(--ink);
+    font: 400 14px/1.45 Archivo, system-ui, sans-serif;
+    font-variation-settings: "wdth" 100;
+  }
+  button, input, select, textarea { font: inherit; color: inherit; }
+  :focus-visible { outline: 2px solid #7FB6EA; outline-offset: 2px; }
+
+  .app { display: grid; grid-template-columns: 440px 1fr; min-height: 100vh; }
+
+  /* ---------- Form panel ---------- */
+  .panel { background: var(--navy); color: #fff; display: flex; flex-direction: column; height: 100vh; position: sticky; top: 0; }
+  .panel-head { display: flex; align-items: center; gap: 12px; padding: 18px 22px; border-bottom: 1px solid var(--line); }
+  .panel-head .mark { width: 34px; color: #fff; --logo-blue: #4B97DE; }
+  .panel-head .mark svg { display: block; width: 100%; height: auto; }
+  .panel-head h1 { margin: 0; font-size: 17px; font-weight: 700; font-variation-settings: "wdth" 80; letter-spacing: .01em; }
+  .panel-head p { margin: 0; color: var(--mist); font-size: 12.5px; }
+  .panel-body { flex: 1; overflow-y: auto; padding: 6px 22px 24px; }
+  .panel-foot { display: flex; gap: 10px; padding: 14px 22px; border-top: 1px solid var(--line); background: var(--navy); }
+
+  fieldset { border: 0; margin: 0; padding: 18px 0 6px; border-bottom: 1px solid var(--line); }
+  fieldset:last-child { border-bottom: 0; }
+  legend { float: left; width: 100%; padding: 0; margin-bottom: 12px; font-size: 15px; font-weight: 700; font-variation-settings: "wdth" 80; }
+  legend + * { clear: both; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .full { grid-column: 1 / -1; }
+  label.f { display: block; }
+  label.f > span { display: block; font-size: 12px; color: var(--mist); margin-bottom: 4px; }
+  .in {
+    width: 100%; background: var(--navy-2); border: 1px solid var(--line); border-radius: 3px;
+    padding: 8px 10px; color: #fff; min-height: 36px;
+  }
+  .in::placeholder { color: #6D85A0; }
+  .in:focus { border-color: #4B97DE; outline: none; box-shadow: 0 0 0 2px rgba(75,151,222,.35); }
+  select.in { appearance: none; -webkit-appearance: none; background-image: linear-gradient(45deg, transparent 50%, var(--mist) 50%), linear-gradient(135deg, var(--mist) 50%, transparent 50%); background-position: calc(100% - 15px) 15px, calc(100% - 10px) 15px; background-size: 5px 5px; background-repeat: no-repeat; padding-right: 26px; }
+  textarea.in { resize: vertical; min-height: 60px; }
+  input[type=date].in { color-scheme: dark; }
+
+  .line-edit { padding: 12px 0; border-top: 1px dashed var(--line); }
+  .line-edit:first-of-type { border-top: 0; padding-top: 0; }
+  .line-edit .top { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
+  .line-edit .art { font-variation-settings: "wdth" 75; font-weight: 700; color: #7FB6EA; min-width: 34px; font-variant-numeric: tabular-nums; }
+  .line-edit .top select { flex: 1; }
+  .line-edit .nums { display: grid; grid-template-columns: 1fr 76px 1.2fr; gap: 8px; margin-top: 8px; }
+  .line-edit .lt { margin-top: 6px; text-align: right; font-size: 12.5px; color: var(--mist); font-variant-numeric: tabular-nums; }
+  .icon-btn { border: 1px solid var(--line); background: transparent; color: var(--mist); width: 34px; height: 34px; border-radius: 3px; cursor: pointer; font-size: 18px; line-height: 1; }
+  .icon-btn:hover { color: #FFB4AB; border-color: #FFB4AB; }
+
+  .add-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+  .chip { border: 1px solid #4B97DE; color: #CFE3F7; background: transparent; padding: 6px 10px; border-radius: 3px; cursor: pointer; font-size: 12.5px; }
+  .chip:hover { background: rgba(75,151,222,.18); }
+
+  .presets { display: flex; gap: 6px; margin-top: 6px; }
+  .presets button { flex: 1; border: 1px solid var(--line); background: transparent; color: var(--mist); padding: 5px 0; border-radius: 3px; cursor: pointer; font-size: 12px; }
+  .presets button[aria-pressed=true] { border-color: #4B97DE; color: #fff; background: rgba(75,151,222,.22); }
+
+  .btn { flex: 1; padding: 11px 14px; border-radius: 3px; border: 1px solid var(--line); background: transparent; color: #fff; font-weight: 600; cursor: pointer; }
+  .btn:hover { background: var(--navy-2); }
+  .btn.primary { background: var(--blue); border-color: var(--blue); flex: 1.6; }
+  .btn.primary:hover { background: #2A7DCB; }
+
+  /* ---------- Preview bench ---------- */
+  .bench { position: relative; padding: 28px; overflow: hidden; }
+  .bench-bar { display: flex; justify-content: space-between; align-items: baseline; max-width: 210mm; margin: 0 auto 12px; color: var(--grey); font-size: 12.5px; }
+  .scale-box { margin: 0 auto; transform-origin: top left; }
+
+  /* ---------- The sheet ---------- */
+  .sheet {
+    width: 210mm; min-height: 297mm; padding: 10mm; background: #fff;
+    box-shadow: 0 1px 3px rgba(14,35,56,.2), 0 18px 40px rgba(14,35,56,.12);
+  }
+  .frame { border: 0.5mm solid var(--ink); min-height: 277mm; padding: 8mm 9mm 0; display: flex; flex-direction: column; }
+  .doc-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; padding-bottom: 6mm; border-bottom: 0.3mm solid var(--ink); }
+  .doc-head .brand { display: flex; gap: 14px; align-items: center; }
+  .doc-head .brand .logo { width: 62px; color: var(--ink); }
+  .doc-head .brand .logo svg { display: block; width: 100%; height: auto; }
+  .doc-head .brand strong { display: block; font-size: 19px; font-weight: 800; font-variation-settings: "wdth" 72; letter-spacing: .01em; }
+  .doc-head .brand span { font-size: 11.5px; color: var(--grey); }
+  .doc-head h2 { margin: 0; font-size: 34px; line-height: 1; font-weight: 800; font-variation-settings: "wdth" 62; color: var(--blue); }
+  .doc-head .to { text-align: right; font-size: 11.5px; color: var(--grey); }
+
+  .doc-body { flex: 1; padding: 6mm 0 8mm; }
+  .doc-table { width: 100%; border-collapse: collapse; font-size: 11.5px; }
+  .doc-table th { text-align: left; font-weight: 600; font-size: 10.5px; color: var(--grey); padding: 0 5px 5px; border-bottom: 0.3mm solid var(--ink); font-variation-settings: "wdth" 85; }
+  .doc-table td { padding: 5px; vertical-align: top; border-bottom: 0.2mm solid var(--hair); }
+  .doc-table .n { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .doc-table .art { width: 34px; font-variant-numeric: tabular-nums; color: var(--grey); }
+  .doc-table tr.chapter td { padding-top: 12px; border-bottom: 0.3mm solid var(--blue); font-weight: 700; font-size: 12.5px; color: var(--blue-ink); font-variation-settings: "wdth" 80; }
+  .doc-table tr.chapter .art { color: var(--blue-ink); }
+  .doc-table tr.sub td { border-bottom: 0; font-weight: 600; padding-bottom: 4px; }
+  .doc-table tr.sub td:first-child { text-align: right; color: var(--grey); font-weight: 400; }
+  .doc-table .desc { white-space: pre-wrap; }
+  .muted { color: #9AA5B1; }
+  .empty-note { color: var(--grey); font-style: italic; padding: 18px 5px; }
+
+  .doc-notes { margin-top: 7mm; font-size: 11px; white-space: pre-wrap; }
+  .doc-notes b { display: block; font-size: 11.5px; margin-bottom: 2px; }
+
+  /* Title block, bottom right of the sheet, like a drawing's carimbo */
+  .carimbo { display: grid; grid-template-columns: 1fr 1fr 1fr 1.25fr; border-top: 0.5mm solid var(--ink); margin: 0 -9mm; font-size: 10.5px; break-inside: avoid; }
+  .carimbo > div { padding: 2.2mm 3mm; border-right: 0.3mm solid var(--ink); border-bottom: 0.3mm solid var(--ink); min-height: 12mm; }
+  .carimbo .end { border-right: 0; }
+  .carimbo .k { display: block; color: var(--grey); font-size: 9.5px; font-variation-settings: "wdth" 85; margin-bottom: 1px; }
+  .carimbo .v { font-weight: 600; font-size: 11.5px; }
+  .carimbo .client { grid-column: span 2; }
+  .carimbo .client .v { font-size: 13px; }
+  .carimbo .total { grid-row: span 2; grid-column: 4; background: var(--blue); color: #fff; display: flex; flex-direction: column; justify-content: center; }
+  .carimbo .total .k { color: #D6E7F7; }
+  .carimbo .total .v { font-size: 25px; font-weight: 800; font-variation-settings: "wdth" 72; line-height: 1.05; font-variant-numeric: tabular-nums; }
+  .carimbo .total .vat { font-size: 10px; color: #D6E7F7; margin-top: 2px; }
+  .carimbo .company { grid-column: span 2; border-bottom: 0; }
+  .carimbo .company .v { color: var(--ink); font-weight: 400; font-size: 10.5px; }
+
+  /* ---------- Mobile: tabs between form and preview ---------- */
+  .tabs { display: none; }
+  @media screen and (max-width: 960px) {
+    .app { grid-template-columns: 1fr; }
+    .panel { height: auto; position: static; }
+    .panel-body { overflow: visible; }
+    .panel-foot { position: sticky; bottom: 0; }
+    .tabs { display: flex; position: sticky; top: 0; z-index: 3; background: var(--navy); border-bottom: 1px solid var(--line); }
+    .tabs button { flex: 1; padding: 12px; background: none; border: 0; color: var(--mist); font-weight: 600; cursor: pointer; border-bottom: 3px solid transparent; }
+    .tabs button[aria-selected=true] { color: #fff; border-bottom-color: #4B97DE; }
+    .app[data-view=form] .bench { display: none; }
+    .app[data-view=preview] .panel-body, .app[data-view=preview] .panel-head { display: none; }
+    .bench { padding: 16px; }
+    .bench-bar { display: none; }
+  }
+
+  @media print {
+    @page { size: A4; margin: 0; }
+    body { background: #fff; }
+    .panel, .tabs, .bench-bar { display: none !important; }
+    .app { display: block; }
+    .app .bench { display: block !important; padding: 0; overflow: visible; }
+    .scale-box { transform: none !important; width: auto !important; height: auto !important; }
+    .sheet { box-shadow: none; }
+    .doc-table tr { break-inside: avoid; }
+    .doc-table thead { display: table-header-group; }
+  }
+</style>
+</head>
+<body>
+<div class="app" id="app" data-view="form">
+  <div class="tabs" role="tablist">
+    <button role="tab" aria-selected="true" data-view="form">Editar</button>
+    <button role="tab" aria-selected="false" data-view="preview">Pré-visualizar</button>
+  </div>
+
+  <aside class="panel">
+    <div class="panel-head">
+      <div class="mark" id="mark"></div>
+      <div><h1>Novo orçamento</h1><p id="head-sub"></p></div>
+    </div>
+
+    <form class="panel-body" id="form" autocomplete="off" onsubmit="return false">
+      <fieldset>
+        <legend>Cliente</legend>
+        <div class="grid2">
+          <label class="f full"><span>Nome ou empresa</span><input class="in" data-bind="customer.name" placeholder="Ex.: Maria Ferreira"></label>
+          <label class="f"><span>NIF</span><input class="in" data-bind="customer.nif" inputmode="numeric"></label>
+          <label class="f"><span>Telefone</span><input class="in" data-bind="customer.phone" inputmode="tel"></label>
+          <label class="f full"><span>Morada</span><input class="in" data-bind="customer.address"></label>
+          <label class="f full"><span>Código postal e localidade</span><input class="in" data-bind="customer.postal" placeholder="4815-000 Vizela"></label>
+          <label class="f full"><span>Email</span><input class="in" data-bind="customer.email" type="email"></label>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Trabalhos</legend>
+        <div id="lines"></div>
+        <div class="add-row" id="add-row" aria-label="Adicionar linha"></div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Condições</legend>
+        <div class="grid2">
+          <label class="f"><span>N.º do orçamento</span><input class="in" data-bind="number"></label>
+          <label class="f"><span>Data</span><input class="in" type="date" data-bind="date"></label>
+          <label class="f"><span>Válido até</span><input class="in" type="date" data-bind="validUntil"></label>
+          <label class="f"><span>IVA</span><select class="in" id="vat"></select></label>
+          <div class="full presets" id="presets" aria-label="Validade rápida"></div>
+          <label class="f full"><span>Observações</span><textarea class="in" data-bind="notes" rows="3" placeholder="Prazo de execução, condições de pagamento…"></textarea></label>
+        </div>
+      </fieldset>
+    </form>
+
+    <div class="panel-foot">
+      <button class="btn" type="button" id="new">Limpar</button>
+      <button class="btn primary" type="button" id="print">Guardar PDF</button>
+    </div>
+  </aside>
+
+  <section class="bench" id="bench" aria-label="Pré-visualização">
+    <div class="bench-bar"><span>Pré-visualização A4</span><span id="bench-total"></span></div>
+    <div class="scale-box" id="scale-box"><div class="sheet" id="sheet"></div></div>
+  </section>
+</div>
+
+<script src="assets/quote-core.js"></script>
+<script>
+  const Q = window.QuoteCore;
+  let state = Q.load();
+  const $ = (s) => document.querySelector(s);
+  const esc = Q.escapeHtml;
+  const get = (p) => p.split('.').reduce((o, k) => o[k], state);
+  const set = (p, v) => { const ks = p.split('.'); const last = ks.pop(); ks.reduce((o, k) => o[k], state)[last] = v; };
+
+  $('#mark').innerHTML = Q.LOGO_SVG;
+  $('#vat').innerHTML = Q.VAT_RATES.map((r) => `<option value="${r.value}">${r.label}</option>`).join('');
+  $('#add-row').innerHTML = Q.CATEGORIES.map((c) => `<button type="button" class="chip" data-cat="${c}">+ ${c}</button>`).join('');
+  $('#presets').innerHTML = [15, 30, 60, 90].map((d) => `<button type="button" data-days="${d}">${d} dias</button>`).join('');
+
+  // Lines are ordered by chapter (service category); article numbers follow chapter.position.
+  function chapters() {
+    return Q.CATEGORIES
+      .map((cat) => ({ cat, lines: state.lines.filter((l) => l.cat === cat) }))
+      .filter((c) => c.lines.length);
+  }
+  function articleNumbers() {
+    const map = {};
+    chapters().forEach((ch, i) => ch.lines.forEach((l, j) => { map[l.id] = `${i + 1}.${j + 1}`; }));
+    return map;
+  }
+
+  function renderForm() {
+    document.querySelectorAll('[data-bind]').forEach((el) => { el.value = get(el.dataset.bind); });
+    $('#vat').value = String(state.vat);
+    renderLineEditors();
+  }
+
+  function renderLineEditors() {
+    const arts = articleNumbers();
+    const ordered = chapters().flatMap((c) => c.lines);
+    $('#lines').innerHTML = ordered.map((l) => `
+      <div class="line-edit" data-id="${l.id}">
+        <div class="top">
+          <span class="art">${arts[l.id]}</span>
+          <select class="in" data-field="cat" aria-label="Capítulo">${Q.CATEGORIES.map((c) => `<option${c === l.cat ? ' selected' : ''}>${c}</option>`).join('')}</select>
+          <button type="button" class="icon-btn" data-remove aria-label="Remover linha ${arts[l.id]}">×</button>
+        </div>
+        <textarea class="in" data-field="desc" rows="2" placeholder="Descrição do trabalho ou material" aria-label="Descrição">${esc(l.desc)}</textarea>
+        <div class="nums">
+          <label class="f"><span>Quantidade</span><input class="in" data-field="qty" inputmode="decimal" value="${esc(l.qty)}"></label>
+          <label class="f"><span>Unidade</span><select class="in" data-field="unit">${Q.UNITS.map((u) => `<option${u === l.unit ? ' selected' : ''}>${u}</option>`).join('')}</select></label>
+          <label class="f"><span>Preço unitário (€)</span><input class="in" data-field="price" inputmode="decimal" placeholder="0,00" value="${esc(l.price)}"></label>
+        </div>
+        <div class="lt" data-out="lt"></div>
+      </div>`).join('');
+    updateLineTotals();
+  }
+
+  function updateLineTotals() {
+    document.querySelectorAll('.line-edit').forEach((el) => {
+      const l = state.lines.find((x) => x.id === el.dataset.id);
+      el.querySelector('[data-out=lt]').textContent = `Total da linha ${Q.eur(Q.lineTotal(l))}`;
+    });
+    const days = Q.daysBetween(state.date, state.validUntil);
+    document.querySelectorAll('#presets button').forEach((b) => b.setAttribute('aria-pressed', String(Number(b.dataset.days) === days)));
+  }
+
+  function renderSheet() {
+    const C = Q.COMPANY, cu = state.customer, t = Q.totals(state), arts = articleNumbers();
+    const body = chapters().map((ch, i) => {
+      const sub = ch.lines.reduce((s, l) => s + Q.lineTotal(l), 0);
+      return `
+        <tr class="chapter"><td class="art">${i + 1}</td><td colspan="5">${esc(ch.cat)}</td></tr>
+        ${ch.lines.map((l) => `
+          <tr>
+            <td class="art">${arts[l.id]}</td>
+            <td class="desc">${esc(l.desc) || '<span class="muted">Sem descrição</span>'}</td>
+            <td class="n">${Q.fmtNum(Q.parseNum(l.qty))}</td>
+            <td>${esc(l.unit)}</td>
+            <td class="n">${Q.eur(Q.parseNum(l.price))}</td>
+            <td class="n">${Q.eur(Q.lineTotal(l))}</td>
+          </tr>`).join('')}
+        ${chapters().length > 1 ? `<tr class="sub"><td colspan="5">Subtotal ${i + 1}. ${esc(ch.cat)}</td><td class="n">${Q.eur(sub)}</td></tr>` : ''}`;
+    }).join('');
+
+    const addr = [cu.address, cu.postal].filter((s) => s.trim()).map(esc).join('<br>');
+    const contact = [cu.nif && `NIF ${esc(cu.nif)}`, esc(cu.phone), esc(cu.email)].filter(Boolean).join('<br>');
+
+    $('#sheet').innerHTML = `
+      <div class="frame">
+        <div class="doc-head">
+          <div class="brand"><div class="logo">${Q.LOGO_SVG}</div><div><strong>${C.name}</strong><span>Construção civil, eletricidade,<br>canalizações e ar condicionado</span></div></div>
+          <div><h2>Orçamento</h2></div>
+        </div>
+        <div class="doc-body">
+          <table class="doc-table">
+            <thead><tr><th>Art.</th><th>Descrição</th><th class="n">Qtd.</th><th>Un.</th><th class="n">Preço un.</th><th class="n">Total</th></tr></thead>
+            <tbody>${body || '<tr><td colspan="6" class="empty-note">Adicione trabalhos no painel para os ver aqui.</td></tr>'}</tbody>
+          </table>
+          ${state.notes.trim() ? `<div class="doc-notes"><b>Observações</b>${esc(state.notes)}</div>` : ''}
+        </div>
+        <div class="carimbo">
+          <div class="client"><span class="k">Cliente</span><span class="v">${esc(cu.name) || '—'}</span></div>
+          <div><span class="k">Morada</span><span class="v">${addr || '—'}</span></div>
+          <div class="total end"><span class="k">Total</span><span class="v">${Q.eur(t.total)}</span><span class="vat">Subtotal ${Q.eur(t.subtotal)}<br>${Q.vatLabel(state.vat)} ${Q.eur(t.vat)}</span></div>
+          <div><span class="k">Orçamento n.º</span><span class="v">${esc(state.number)}</span></div>
+          <div><span class="k">Data</span><span class="v">${Q.fmtDate(state.date)}</span></div>
+          <div><span class="k">Válido até</span><span class="v">${Q.fmtDate(state.validUntil)}</span></div>
+          <div class="company"><span class="k">Contactos do cliente</span><span class="v">${contact || '—'}</span></div>
+          <div class="company end"><span class="k">${C.name}</span><span class="v">${C.street}, ${C.city}<br>${C.phone}<br>${C.email}<br>${C.web}</span></div>
+        </div>
+      </div>`;
+    $('#bench-total').textContent = `Total ${Q.eur(t.total)}`;
+    $('#head-sub').textContent = `N.º ${state.number}`;
+    fit();
+    Q.save(state);
+  }
+
+  // Scale the real-size A4 sheet to fit the bench width.
+  function fit() {
+    const box = $('#scale-box'), sheet = $('#sheet'), bench = $('#bench');
+    const avail = bench.clientWidth - parseFloat(getComputedStyle(bench).paddingLeft) * 2;
+    const w = sheet.offsetWidth, h = sheet.offsetHeight;
+    const k = Math.min(1, avail / w);
+    box.style.transform = `scale(${k})`;
+    box.style.width = `${w}px`;
+    box.style.height = `${h * k}px`;
+    box.style.marginLeft = `${Math.max(0, (avail - w * k) / 2)}px`;
+  }
+  new ResizeObserver(fit).observe($('#bench'));
+
+  const form = $('#form');
+  form.addEventListener('input', (e) => {
+    const el = e.target;
+    if (el.dataset.bind) { set(el.dataset.bind, el.value); updateLineTotals(); renderSheet(); return; }
+    const row = el.closest('.line-edit');
+    if (row && el.dataset.field && el.dataset.field !== 'cat') {
+      state.lines.find((l) => l.id === row.dataset.id)[el.dataset.field] = el.value;
+      updateLineTotals(); renderSheet();
+    }
+  });
+  form.addEventListener('change', (e) => {
+    const el = e.target, row = el.closest('.line-edit');
+    if (row && el.dataset.field === 'cat') {
+      state.lines.find((l) => l.id === row.dataset.id).cat = el.value;
+      renderLineEditors(); renderSheet();
+    }
+  });
+  form.addEventListener('click', (e) => {
+    const rm = e.target.closest('[data-remove]');
+    if (rm) {
+      const id = rm.closest('.line-edit').dataset.id;
+      state.lines = state.lines.filter((l) => l.id !== id);
+      renderLineEditors(); renderSheet(); return;
+    }
+    const chip = e.target.closest('[data-cat]');
+    if (chip) {
+      const line = Q.newLine({ cat: chip.dataset.cat });
+      state.lines.push(line);
+      renderLineEditors(); renderSheet();
+      document.querySelector(`.line-edit[data-id="${line.id}"] textarea`).focus();
+      return;
+    }
+    const preset = e.target.closest('[data-days]');
+    if (preset) {
+      state.validUntil = Q.addDays(state.date, Number(preset.dataset.days));
+      document.querySelector('[data-bind=validUntil]').value = state.validUntil;
+      updateLineTotals(); renderSheet();
+    }
+  });
+  $('#vat').addEventListener('change', (e) => { state.vat = Number(e.target.value); renderSheet(); });
+  $('#print').addEventListener('click', () => Q.printQuote(state));
+  $('#new').addEventListener('click', () => {
+    if (!confirm('Limpar todos os campos e começar um orçamento novo?')) return;
+    state = Q.blank(); renderForm(); renderSheet();
+  });
+  document.querySelectorAll('.tabs button').forEach((b) => b.addEventListener('click', () => {
+    $('#app').dataset.view = b.dataset.view;
+    document.querySelectorAll('.tabs button').forEach((x) => x.setAttribute('aria-selected', String(x === b)));
+    if (b.dataset.view === 'preview') fit();
+  }));
+
+  renderForm();
+  renderSheet();
+</script>
+</body>
+</html>

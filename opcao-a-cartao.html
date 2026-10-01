@@ -1,0 +1,364 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Orçamentos: Cartão</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  /* Option A — "Cartão": the page is the editor. Same type, rules and blue bar as the business card. */
+  :root {
+    --blue: #1F6DB5;
+    --blue-soft: #E8F0F8;
+    --ink: #000;
+    --navy: #13263A;
+    --grey: #5B6672;
+    --desk: #DDE3E9;
+    --paper: #fff;
+    --logo-blue: var(--blue);
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--desk);
+    color: var(--ink);
+    font: 400 15px/1.45 Montserrat, system-ui, sans-serif;
+  }
+  button, input, select { font: inherit; color: inherit; }
+
+  /* Toolbar */
+  .bar {
+    position: sticky; top: 0; z-index: 5;
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px max(16px, calc((100vw - 210mm) / 2));
+    background: var(--paper);
+    border-bottom: 2px solid var(--navy);
+  }
+  .bar .hint { color: var(--grey); font-size: 13px; margin-right: auto; }
+  .btn {
+    border: 2px solid var(--navy); background: var(--paper);
+    padding: 8px 14px; font-weight: 600; cursor: pointer; border-radius: 2px;
+  }
+  .btn.primary { background: var(--blue); border-color: var(--blue); color: #fff; }
+  .btn:hover { background: var(--blue-soft); }
+  .btn.primary:hover { background: #185a96; }
+  :focus-visible { outline: 3px solid var(--blue); outline-offset: 2px; }
+
+  /* Sheet */
+  .sheet {
+    position: relative;
+    width: 210mm; min-height: 297mm;
+    margin: 24px auto 64px;
+    padding: 18mm 16mm 18mm 30mm;
+    background: var(--paper);
+    box-shadow: 0 1px 2px rgba(19,38,58,.18), 0 12px 32px rgba(19,38,58,.12);
+  }
+  .sheet::before {
+    content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 11mm;
+    background: var(--blue);
+  }
+
+  .head { display: grid; grid-template-columns: auto 1fr auto; gap: 18px; align-items: start; }
+  .logo { width: 70px; color: var(--ink); }
+  .logo svg { display: block; width: 100%; height: auto; }
+  .company { font-size: 12.5px; line-height: 1.5; }
+  .company strong { display: block; font-size: 16px; font-weight: 700; margin-bottom: 2px; }
+  .company .web { color: var(--blue); font-weight: 600; }
+  .meta { text-align: right; font-size: 12.5px; }
+  .meta h1 { margin: 0 0 6px; color: var(--blue); font-size: 26px; font-weight: 800; letter-spacing: .02em; text-transform: uppercase; }
+  .meta dl { margin: 0; display: grid; grid-template-columns: auto auto; gap: 2px 10px; justify-content: end; }
+  .meta dt { color: var(--grey); }
+  .meta dd { margin: 0; font-weight: 600; }
+
+  .rule { border: 0; border-top: 2.5px solid var(--navy); margin: 22px 0; }
+
+  h2 { margin: 0 0 10px; color: var(--blue); font-size: 15px; font-weight: 800; letter-spacing: .03em; text-transform: uppercase; }
+
+  /* Editable text */
+  [contenteditable] { outline: none; border-radius: 2px; min-width: 2ch; }
+  [contenteditable]:hover { background: var(--blue-soft); }
+  [contenteditable]:focus { background: var(--blue-soft); box-shadow: 0 2px 0 var(--blue); }
+  [contenteditable]:empty::before { content: attr(data-placeholder); color: #9AA5B1; }
+
+  .customer { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 28px; }
+  .customer .name { grid-column: 1 / -1; font-size: 22px; font-weight: 700; margin-bottom: 4px; }
+  .field.col2 { grid-column: 2; }
+  .field.r2 { grid-row: 2; }
+  .field.r3 { grid-row: 3; }
+  .field { display: flex; gap: 8px; font-size: 13.5px; }
+  .field .k { color: var(--grey); flex: 0 0 64px; }
+  .field .v { flex: 1; }
+
+  /* Lines */
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  th { text-align: left; font-weight: 600; color: var(--grey); font-size: 12px; padding: 0 6px 8px; border-bottom: 1px solid var(--navy); }
+  td { padding: 9px 6px; vertical-align: top; border-bottom: 1px solid #E3E8ED; }
+  th.n, td.n { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  td.desc { width: 52%; }
+  .bullet { display: inline-block; width: 7px; height: 7px; background: var(--blue); margin: 0 8px 1px 0; }
+  .desc-wrap { display: flex; align-items: baseline; }
+  .desc-wrap [contenteditable] { flex: 1; }
+  td.unit select {
+    border: 0; background: transparent; padding: 0; cursor: pointer; appearance: none; -webkit-appearance: none;
+  }
+  td.unit select:hover { background: var(--blue-soft); }
+  td.total { font-weight: 600; }
+  td.x { width: 28px; padding-left: 0; padding-right: 0; }
+  .remove {
+    border: 0; background: none; width: 26px; height: 26px; cursor: pointer; color: var(--grey);
+    font-size: 18px; line-height: 1; border-radius: 2px; opacity: .45;
+  }
+  tr:hover .remove, .remove:focus-visible { opacity: 1; }
+  .remove:hover { color: #B3261E; background: #FBEAEA; }
+  .add { margin-top: 10px; border: 1.5px dashed var(--blue); background: none; color: var(--blue); font-weight: 600; padding: 8px 14px; cursor: pointer; border-radius: 2px; }
+  .add:hover { background: var(--blue-soft); }
+
+  /* Totals: the card's bold phone number becomes the quote total */
+  .sum { display: grid; grid-template-columns: 1fr auto; gap: 24px; align-items: end; margin-top: 26px; }
+  .validity { font-size: 13.5px; }
+  .validity strong { display: block; font-weight: 700; font-size: 15px; }
+  .validity label { display: inline-flex; align-items: center; gap: 8px; color: var(--grey); }
+  .validity input[type=date] { border: 1.5px solid #C9D2DB; padding: 4px 6px; border-radius: 2px; font-weight: 600; color: var(--ink); }
+  .validity .print-only { font-weight: 700; color: var(--ink); }
+  .figures { text-align: right; font-variant-numeric: tabular-nums; }
+  .figures .row { display: flex; justify-content: flex-end; gap: 18px; font-size: 13.5px; color: var(--grey); }
+  .figures .row span:last-child { min-width: 110px; color: var(--ink); font-weight: 600; }
+  .figures select { border: 0; background: transparent; color: var(--grey); cursor: pointer; text-align: right; padding: 0; }
+  .figures select:hover { background: var(--blue-soft); }
+  .grand { margin-top: 8px; padding-top: 8px; border-top: 2.5px solid var(--navy); }
+  .grand .k { font-size: 13px; font-weight: 700; color: var(--blue); text-transform: uppercase; letter-spacing: .03em; }
+  .grand .v { display: block; font-size: 40px; font-weight: 800; line-height: 1.05; letter-spacing: -.01em; }
+
+  .notes { margin-top: 30px; font-size: 13px; }
+  .notes h2 { font-size: 13px; }
+  .notes [contenteditable] { display: block; white-space: pre-wrap; color: var(--navy); }
+
+  .foot { margin-top: 36px; font-size: 11.5px; color: var(--grey); }
+
+  .print-only { display: none; }
+
+  /* Small screens: keep the A4 proportions but let it shrink */
+  @media screen and (max-width: 860px) {
+    .bar .hint { display: none; }
+    .bar { justify-content: flex-end; }
+    .sheet { width: auto; min-height: 0; margin: 12px; padding: 22px 16px 26px 34px; }
+    .sheet::before { width: 14px; }
+    .head { grid-template-columns: auto 1fr; }
+    .meta { grid-column: 1 / -1; text-align: left; }
+    .meta dl { justify-content: start; }
+    .customer { grid-template-columns: 1fr; }
+    .field.col2 { grid-column: auto; grid-row: auto; }
+    td.total { text-align: right; }
+    table, thead, tbody, tr, td { display: block; }
+    thead { display: none; }
+    tr { position: relative; padding: 10px 0; border-bottom: 1px solid #E3E8ED; display: grid; grid-template-columns: 1fr 1fr 1fr; }
+    td { border: 0; padding: 2px 0; }
+    td.desc { grid-column: 1 / -1; width: auto; padding-right: 30px; }
+    td.n { text-align: left; }
+    td.x { position: absolute; right: 0; top: 8px; }
+    td.qty::before { content: "Qtd. "; color: var(--grey); }
+    td.price::before { content: "Preço "; color: var(--grey); }
+    td.unit { display: none; }
+    .sum { grid-template-columns: 1fr; }
+    .grand .v { font-size: 32px; }
+  }
+
+  @media print {
+    @page { size: A4; margin: 0; }
+    body { background: #fff; }
+    .bar, .add, td.x, th.x, .screen-only { display: none !important; }
+    .print-only { display: inline !important; }
+    .sheet { margin: 0; box-shadow: none; width: 210mm; min-height: 297mm; }
+    .sheet::before { position: fixed; height: 297mm; }
+    [contenteditable]:empty::before { content: none; }
+    [contenteditable] { background: none !important; box-shadow: none !important; }
+    .is-empty { display: none !important; }
+    td.unit select { appearance: none; }
+    tr { break-inside: avoid; }
+    .sum, .notes { break-inside: avoid; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+  <div class="bar">
+    <span class="hint">Clique em qualquer texto do orçamento para o editar.</span>
+    <button class="btn" id="new" type="button">Novo orçamento</button>
+    <button class="btn primary" id="print" type="button">Guardar PDF</button>
+  </div>
+
+  <main class="sheet" id="sheet">
+    <header class="head">
+      <div class="logo" id="logo"></div>
+      <div class="company" id="company"></div>
+      <div class="meta">
+        <h1>Orçamento</h1>
+        <dl>
+          <dt>N.º</dt><dd contenteditable="plaintext-only" spellcheck="false" data-bind="number"></dd>
+          <dt>Data</dt><dd id="date-out"></dd>
+        </dl>
+      </div>
+    </header>
+
+    <hr class="rule">
+
+    <section aria-labelledby="h-cliente">
+      <h2 id="h-cliente">Cliente</h2>
+      <div class="customer">
+        <div class="name" contenteditable="plaintext-only" data-bind="customer.name" data-placeholder="Nome do cliente"></div>
+        <div class="field" data-row="customer.nif"><span class="k">NIF</span><span class="v" contenteditable="plaintext-only" data-bind="customer.nif" data-placeholder="—"></span></div>
+        <div class="field" data-row="customer.address"><span class="k">Morada</span><span class="v" contenteditable="plaintext-only" data-bind="customer.address" data-placeholder="Rua, n.º"></span></div>
+        <div class="field" data-row="customer.postal"><span class="k"></span><span class="v" contenteditable="plaintext-only" data-bind="customer.postal" data-placeholder="Código postal e localidade"></span></div>
+        <div class="field col2 r2" data-row="customer.phone"><span class="k">Telefone</span><span class="v" contenteditable="plaintext-only" data-bind="customer.phone" data-placeholder="—"></span></div>
+        <div class="field col2 r3" data-row="customer.email"><span class="k">Email</span><span class="v" contenteditable="plaintext-only" data-bind="customer.email" data-placeholder="—"></span></div>
+      </div>
+    </section>
+
+    <hr class="rule">
+
+    <section aria-labelledby="h-servicos">
+      <h2 id="h-servicos">Serviços</h2>
+      <table>
+        <thead><tr><th>Descrição</th><th class="n">Qtd.</th><th>Un.</th><th class="n">Preço un.</th><th class="n">Total</th><th class="x" aria-label="Remover"></th></tr></thead>
+        <tbody id="lines"></tbody>
+      </table>
+      <button class="add" id="add" type="button">+ Adicionar linha</button>
+    </section>
+
+    <div class="sum">
+      <div class="validity">
+        <strong>Válido até</strong>
+        <label class="screen-only"><input type="date" id="valid"> <span id="valid-days"></span></label>
+        <span class="print-only" id="valid-out"></span>
+      </div>
+      <div class="figures">
+        <div class="row"><span>Subtotal</span><span id="subtotal"></span></div>
+        <div class="row">
+          <span>
+            <select id="vat" class="screen-only" aria-label="Taxa de IVA"></select>
+            <span class="print-only" id="vat-out"></span>
+          </span>
+          <span id="vat-amount"></span>
+        </div>
+        <div class="grand"><span class="k">Total</span><span class="v" id="total"></span></div>
+      </div>
+    </div>
+
+    <section class="notes" data-row="notes">
+      <h2>Observações</h2>
+      <div contenteditable="plaintext-only" data-bind="notes" data-placeholder="Prazos de execução, condições de pagamento, materiais não incluídos…"></div>
+    </section>
+
+    <p class="foot" id="foot"></p>
+  </main>
+
+<script src="assets/quote-core.js"></script>
+<script>
+  const Q = window.QuoteCore;
+  let state = Q.load();
+  const $ = (s) => document.querySelector(s);
+
+  $('#logo').innerHTML = Q.LOGO_SVG;
+  const C = Q.COMPANY;
+  $('#company').innerHTML = `<strong>${C.name}</strong>${C.street}<br>${C.city}<br>${C.phone}<br>${C.email}<br><span class="web">${C.web}</span>`;
+  $('#vat').innerHTML = Q.VAT_RATES.map((r) => `<option value="${r.value}">${r.label}</option>`).join('');
+
+  const get = (path) => path.split('.').reduce((o, k) => o[k], state);
+  const set = (path, v) => { const ks = path.split('.'); const last = ks.pop(); ks.reduce((o, k) => o[k], state)[last] = v; };
+
+  function bindStatic() {
+    document.querySelectorAll('[data-bind]').forEach((el) => { el.textContent = get(el.dataset.bind); });
+    $('#valid').value = state.validUntil;
+    $('#vat').value = String(state.vat);
+    markEmpty();
+  }
+
+  function markEmpty() {
+    document.querySelectorAll('[data-row]').forEach((row) => {
+      row.classList.toggle('is-empty', !String(get(row.dataset.row)).trim());
+    });
+  }
+
+  function renderLines() {
+    $('#lines').innerHTML = state.lines.map((l) => `
+      <tr data-id="${l.id}">
+        <td class="desc"><div class="desc-wrap"><span class="bullet" aria-hidden="true"></span><div contenteditable="plaintext-only" data-field="desc" data-placeholder="Descrição do trabalho ou material">${Q.escapeHtml(l.desc)}</div></div></td>
+        <td class="n qty"><span contenteditable="plaintext-only" inputmode="decimal" data-field="qty" data-placeholder="1">${Q.escapeHtml(l.qty)}</span></td>
+        <td class="unit"><select data-field="unit" aria-label="Unidade">${Q.UNITS.map((u) => `<option${u === l.unit ? ' selected' : ''}>${u}</option>`).join('')}</select></td>
+        <td class="n price"><span contenteditable="plaintext-only" inputmode="decimal" data-field="price" data-placeholder="0,00">${Q.escapeHtml(l.price)}</span> €</td>
+        <td class="n total" data-out="total"></td>
+        <td class="x"><button class="remove" type="button" data-remove aria-label="Remover linha">×</button></td>
+      </tr>`).join('');
+    renderTotals();
+  }
+
+  function renderTotals() {
+    state.lines.forEach((l) => {
+      const cell = document.querySelector(`tr[data-id="${l.id}"] [data-out="total"]`);
+      if (cell) cell.textContent = Q.eur(Q.lineTotal(l));
+    });
+    const t = Q.totals(state);
+    $('#subtotal').textContent = Q.eur(t.subtotal);
+    $('#vat-amount').textContent = Q.eur(t.vat);
+    $('#vat-out').textContent = Q.vatLabel(state.vat);
+    $('#total').textContent = Q.eur(t.total);
+    $('#date-out').textContent = Q.fmtDate(state.date);
+    $('#valid-out').textContent = Q.fmtDate(state.validUntil, 'long');
+    const days = Q.daysBetween(state.date, state.validUntil);
+    $('#valid-days').textContent = days >= 0 ? `${days} dias` : 'data anterior ao orçamento';
+    $('#foot').textContent = `Orçamento válido até ${Q.fmtDate(state.validUntil, 'long')}. Valores em euros.`;
+    Q.save(state);
+  }
+
+  document.addEventListener('input', (e) => {
+    const el = e.target;
+    if (el.dataset.bind) { set(el.dataset.bind, el.textContent); markEmpty(); Q.save(state); return; }
+    const row = el.closest('tr[data-id]');
+    if (row && el.dataset.field) {
+      const line = state.lines.find((l) => l.id === row.dataset.id);
+      line[el.dataset.field] = el.isContentEditable ? el.textContent : el.value;
+      renderTotals();
+    }
+  });
+  document.addEventListener('change', (e) => {
+    if (e.target.dataset.field === 'unit') {
+      state.lines.find((l) => l.id === e.target.closest('tr').dataset.id).unit = e.target.value;
+      Q.save(state);
+    }
+  });
+  // Enter in a single-line field moves on instead of adding a line break.
+  document.addEventListener('keydown', (e) => {
+    const el = e.target;
+    if (e.key === 'Enter' && el.isContentEditable && el.dataset.bind !== 'notes' && el.dataset.field !== 'desc') {
+      e.preventDefault(); el.blur();
+    }
+  });
+
+  $('#lines').addEventListener('click', (e) => {
+    if (!e.target.closest('[data-remove]')) return;
+    const id = e.target.closest('tr').dataset.id;
+    state.lines = state.lines.filter((l) => l.id !== id);
+    if (!state.lines.length) state.lines.push(Q.newLine());
+    renderLines();
+  });
+  $('#add').addEventListener('click', () => {
+    state.lines.push(Q.newLine());
+    renderLines();
+    document.querySelector('#lines tr:last-child [data-field="desc"]').focus();
+  });
+  $('#valid').addEventListener('change', (e) => { state.validUntil = e.target.value; renderTotals(); });
+  $('#vat').addEventListener('change', (e) => { state.vat = Number(e.target.value); renderTotals(); });
+  $('#print').addEventListener('click', () => Q.printQuote(state));
+  $('#new').addEventListener('click', () => {
+    if (!confirm('Começar um orçamento novo? O atual será apagado deste navegador.')) return;
+    state = Q.blank(); bindStatic(); renderLines();
+  });
+
+  bindStatic();
+  renderLines();
+</script>
+</body>
+</html>
