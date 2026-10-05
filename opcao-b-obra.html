@@ -161,7 +161,12 @@
     .app { display: block; }
     .app .bench { display: block !important; padding: 0; overflow: visible; }
     .scale-box { transform: none !important; width: auto !important; height: auto !important; }
-    .sheet { box-shadow: none; }
+    /* Size to the page box the browser actually gives us: Safari (and Chrome with
+       "Margins: Default") add their own margins and headers, so a fixed 297mm
+       sheet overflows and the carimbo gets split across two pages. */
+    .sheet { box-shadow: none; width: auto; min-height: 0; padding: 10mm; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .frame { min-height: calc(100vh - 21mm); } /* 1mm slack: Safari rounds a full-height sheet onto a blank page 2 */
+    .carimbo { page-break-inside: avoid; }
     .doc-table tr { break-inside: avoid; }
     .doc-table thead { display: table-header-group; }
   }

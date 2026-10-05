@@ -171,8 +171,13 @@
     body { background: #fff; }
     .bar, .add, td.x, th.x, .screen-only { display: none !important; }
     .print-only { display: inline !important; }
-    .sheet { margin: 0; box-shadow: none; width: 210mm; min-height: 297mm; }
-    .sheet::before { position: fixed; height: 297mm; }
+    /* No fixed 297mm height: Safari rounds it past the page and adds a blank page 2. */
+    .sheet { margin: 0; box-shadow: none; width: auto; min-height: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .sheet::before { position: fixed; top: 0; bottom: 0; }
+    /* Print slightly smaller than on screen: Safari sets Montserrat wider than Chrome,
+       which wrapped lines and pushed the footer onto a second page. */
+    .sheet { padding-top: 14mm; padding-bottom: 12mm; }
+    .sheet > * { zoom: .92; }
     [contenteditable]:empty::before { content: none; }
     [contenteditable] { background: none !important; box-shadow: none !important; }
     .is-empty { display: none !important; }

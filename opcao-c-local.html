@@ -156,7 +156,8 @@
     #print-root { display: block !important; }
     .preview-wrap { margin: 0; padding: 0; overflow: visible; }
     .preview-scale { transform: none !important; height: auto !important; }
-    .doc { box-shadow: none; }
+    /* Fill the page the browser gives us, with 1mm slack: a fixed 297mm sheet makes Safari add a blank page 2. */
+    .doc { box-shadow: none; width: auto; min-height: calc(100vh - 1mm); -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   }
 </style>
 </head>
