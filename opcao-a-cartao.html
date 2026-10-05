@@ -263,7 +263,7 @@
 
   $('#logo').innerHTML = Q.LOGO_SVG;
   const C = Q.COMPANY;
-  $('#company').innerHTML = `<strong>${C.name}</strong>${C.street}<br>${C.city}<br>${C.phone}<br>${C.email}<br><span class="web">${C.web}</span>`;
+  $('#company').innerHTML = `<strong>${C.name}</strong>NIF ${C.nif}<br>${C.street}<br>${C.city}<br>${C.phone}<br>${C.email}<br><span class="web">${C.web}</span>`;
   $('#vat').innerHTML = Q.VAT_RATES.map((r) => `<option value="${r.value}">${r.label}</option>`).join('');
 
   const get = (path) => path.split('.').reduce((o, k) => o[k], state);

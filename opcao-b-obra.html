@@ -328,7 +328,7 @@
           <div><span class="k">Data</span><span class="v">${Q.fmtDate(state.date)}</span></div>
           <div><span class="k">Válido até</span><span class="v">${Q.fmtDate(state.validUntil)}</span></div>
           <div class="company"><span class="k">Contactos do cliente</span><span class="v">${contact || '—'}</span></div>
-          <div class="company end"><span class="k">${C.name}</span><span class="v">${C.street}, ${C.city}<br>${C.phone}<br>${C.email}<br>${C.web}</span></div>
+          <div class="company end"><span class="k">${C.name}</span><span class="v">NIF ${C.nif}<br>${C.street}, ${C.city}<br>${C.phone}<br>${C.email}<br>${C.web}</span></div>
         </div>
       </div>`;
     $('#bench-total').textContent = `Total ${Q.eur(t.total)}`;

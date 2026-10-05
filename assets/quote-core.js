@@ -6,6 +6,7 @@
     name: 'Numeros Proficuos',
     street: 'Rua Joaquim Pinto, 210 - 1.º',
     city: '4815-434 Vizela, Portugal',
+    nif: '517 870 444',
     phone: '933 658 520',
     email: 'numerosproficuos@gmail.com',
     web: 'numerosproficuos.pt',
